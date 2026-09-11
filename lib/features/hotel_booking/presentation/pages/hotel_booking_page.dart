@@ -230,8 +230,6 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                             child: DateSelectionCard(
                               checkIn: state.checkIn,
                               checkOut: state.checkOut,
-                              onCheckInSelected: (date) => bloc.add(SetCheckInEvent(date)),
-                              onCheckOutSelected: (date) => bloc.add(SetCheckOutEvent(date)),
                               onDateRangeSelected: (range) => bloc.add(UpdateDatesEvent(range.start, range.end)),
                             ),
                           ),

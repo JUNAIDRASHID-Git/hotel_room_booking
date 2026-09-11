@@ -6,87 +6,21 @@ import '../../../../core/utils/date_formatter.dart';
 class DateSelectionCard extends StatelessWidget {
   final DateTime? checkIn;
   final DateTime? checkOut;
-  final Function(DateTime) onCheckInSelected;
-  final Function(DateTime) onCheckOutSelected;
   final Function(DateTimeRange) onDateRangeSelected;
 
   const DateSelectionCard({
     super.key,
     required this.checkIn,
     required this.checkOut,
-    required this.onCheckInSelected,
-    required this.onCheckOutSelected,
     required this.onDateRangeSelected,
   });
-
-  Future<void> _pickCheckInDate(BuildContext context) async {
-    final now = DateTime.now();
-    final firstDate = now.subtract(
-      const Duration(days: 30),
-    ); // allow past pick to test validation
-    final initial = checkIn ?? now;
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initial,
-      firstDate: firstDate,
-      lastDate: now.add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primaryAccent,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: AppColors.textPrimary,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      onCheckInSelected(picked);
-    }
-  }
-
-  Future<void> _pickCheckOutDate(BuildContext context) async {
-    final now = DateTime.now();
-    final firstDate = checkIn ?? now;
-    final initial = checkOut ?? firstDate.add(const Duration(days: 1));
-
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: initial.isBefore(firstDate) ? firstDate : initial,
-      firstDate: now.subtract(const Duration(days: 30)),
-      lastDate: now.add(const Duration(days: 365)),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: AppColors.primaryAccent,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: AppColors.textPrimary,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (picked != null) {
-      onCheckOutSelected(picked);
-    }
-  }
 
   Future<void> _pickDateRange(BuildContext context) async {
     final now = DateTime.now();
     final initialRange =
         (checkIn != null && checkOut != null && checkOut!.isAfter(checkIn!))
-        ? DateTimeRange(start: checkIn!, end: checkOut!)
-        : DateTimeRange(start: now, end: now.add(const Duration(days: 2)));
+            ? DateTimeRange(start: checkIn!, end: checkOut!)
+            : DateTimeRange(start: now, end: now.add(const Duration(days: 2)));
 
     final range = await showDateRangePicker(
       context: context,
@@ -133,47 +67,14 @@ class DateSelectionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: const [
-                  Icon(
-                    Icons.calendar_month_rounded,
-                    color: AppColors.primaryAccent,
-                    size: 22,
-                  ),
-                  SizedBox(width: 8),
-                  Text('Select Stay Dates', style: AppTextStyles.heading2),
-                ],
+            children: const [
+              Icon(
+                Icons.calendar_month_rounded,
+                color: AppColors.primaryAccent,
+                size: 22,
               ),
-              InkWell(
-                onTap: () => _pickDateRange(context),
-                borderRadius: BorderRadius.circular(8),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    children: const [
-                      Icon(
-                        Icons.date_range_rounded,
-                        size: 16,
-                        color: AppColors.primaryAccent,
-                      ),
-                      SizedBox(width: 4),
-                      Text(
-                        'Range Picker',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primaryAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+              SizedBox(width: 8),
+              Text('Select Stay Dates', style: AppTextStyles.heading2),
             ],
           ),
           const SizedBox(height: 16),
@@ -185,7 +86,7 @@ class DateSelectionCard extends StatelessWidget {
                   label: 'CHECK-IN',
                   dateStr: DateFormatter.formatShort(checkIn),
                   icon: Icons.flight_land_rounded,
-                  onTap: () => _pickCheckInDate(context),
+                  onTap: () => _pickDateRange(context),
                 ),
               ),
               const SizedBox(width: 12),
@@ -201,7 +102,7 @@ class DateSelectionCard extends StatelessWidget {
                   label: 'CHECK-OUT',
                   dateStr: DateFormatter.formatShort(checkOut),
                   icon: Icons.flight_takeoff_rounded,
-                  onTap: () => _pickCheckOutDate(context),
+                  onTap: () => _pickDateRange(context),
                 ),
               ),
             ],
