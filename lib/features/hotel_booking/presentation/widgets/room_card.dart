@@ -117,21 +117,26 @@ class RoomCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 6,
+                            runSpacing: 2,
                             children: [
                               Text(
                                 room.type,
-                                style: AppTextStyles.title.copyWith(fontSize: 16),
+                                style: AppTextStyles.title.copyWith(fontSize: 15),
                               ),
-                              if (isBooked) ...[
-                                const SizedBox(width: 8),
+                              if (isBooked)
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
                                   decoration: BoxDecoration(
                                     color: AppColors.errorBackground,
                                     borderRadius: BorderRadius.circular(6),
@@ -146,7 +151,6 @@ class RoomCard extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                              ],
                             ],
                           ),
                           const SizedBox(height: 2),
