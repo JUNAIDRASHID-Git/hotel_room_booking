@@ -49,7 +49,12 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                 size: 28,
               ),
               SizedBox(width: 10),
-              Text('Reservation Confirmed!'),
+              Expanded(
+                child: Text(
+                  'Reservation Confirmed!',
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ],
           ),
           content: Column(
@@ -127,220 +132,225 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
     final bloc = context.read<BookingBloc>();
 
     return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // Sleek App Bar Header
-          SliverAppBar(
-            expandedHeight: 140,
-            floating: false,
-            pinned: true,
-            backgroundColor: AppColors.primary,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-              title: Row(
-                children: const [
-                  Icon(
-                    Icons.king_bed_rounded,
-                    color: Colors.amber,
-                    size: 24,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Hotel Room Booking',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                ],
-              ),
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: AppColors.primaryGradient,
-                    ),
-                  ),
-                  Positioned(
-                    right: -30,
-                    top: -30,
-                    child: Icon(
-                      Icons.hotel_rounded,
-                      size: 180,
-                      color: Colors.white.withValues(alpha: 0.06),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          // Main Body with BLoC State handling
-          SliverPadding(
-            padding: const EdgeInsets.all(20),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                BlocBuilder<BookingBloc, BookingState>(
-                  builder: (context, state) {
-                    if (state is BookingLoadingState || state is BookingInitialState) {
-                      return Column(
-                        children: const [
-                          DateSelectionSkeleton(),
-                          SizedBox(height: 16),
-                          GuestFilterSkeleton(),
-                          SizedBox(height: 20),
-                          RoomCardSkeleton(),
-                          RoomCardSkeleton(),
-                          RoomCardSkeleton(),
-                          SizedBox(height: 12),
-                          BookingSummarySkeleton(),
-                        ],
-                      );
-                    }
-
-                    if (state is BookingErrorState) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(30),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.errorText),
-                              const SizedBox(height: 12),
-                              Text(state.message, style: AppTextStyles.body),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () => bloc.add(const LoadBookingDataEvent()),
-                                child: const Text('Retry'),
-                              ),
-                            ],
-                          ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              // Sleek App Bar Header
+              SliverAppBar(
+                expandedHeight: 140,
+                floating: false,
+                pinned: true,
+                backgroundColor: AppColors.primary,
+                flexibleSpace: FlexibleSpaceBar(
+                  titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+                  title: Row(
+                    children: const [
+                      Icon(
+                        Icons.king_bed_rounded,
+                        color: Colors.amber,
+                        size: 24,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        'Hotel Room Booking',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
-                      );
-                    }
+                      ),
+                    ],
+                  ),
+                  background: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Container(
+                        decoration: const BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                        ),
+                      ),
+                      Positioned(
+                        right: -30,
+                        top: -30,
+                        child: Icon(
+                          Icons.hotel_rounded,
+                          size: 180,
+                          color: Colors.white.withValues(alpha: 0.06),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
 
-                    if (state is BookingLoadedState) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Section 1: Date Picker Card (Isolated RepaintBoundary)
-                          RepaintBoundary(
-                            child: DateSelectionCard(
-                              checkIn: state.checkIn,
-                              checkOut: state.checkOut,
-                              onDateRangeSelected: (range) => bloc.add(UpdateDatesEvent(range.start, range.end)),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
+              // Main Body with BLoC State handling
+              SliverPadding(
+                padding: const EdgeInsets.all(20),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    BlocBuilder<BookingBloc, BookingState>(
+                      builder: (context, state) {
+                        if (state is BookingLoadingState || state is BookingInitialState) {
+                          return Column(
+                            children: const [
+                              DateSelectionSkeleton(),
+                              SizedBox(height: 16),
+                              GuestFilterSkeleton(),
+                              SizedBox(height: 20),
+                              RoomCardSkeleton(),
+                              RoomCardSkeleton(),
+                              RoomCardSkeleton(),
+                              SizedBox(height: 12),
+                              BookingSummarySkeleton(),
+                            ],
+                          );
+                        }
 
-                          // Section 2: Guest Count Filter Card (Isolated RepaintBoundary)
-                          RepaintBoundary(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: AppColors.border),
-                              ),
-                              child: Row(
+                        if (state is BookingErrorState) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(30),
+                              child: Column(
                                 children: [
-                                  const Icon(Icons.people_alt_rounded, color: AppColors.primaryAccent, size: 20),
-                                  const SizedBox(width: 8),
-                                  const Text('Guests:', style: AppTextStyles.title),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: Row(
-                                        children: [1, 2, 3, 4].map((count) {
-                                          final isSelected = state.guestCount == count;
-                                          return Padding(
-                                            padding: const EdgeInsets.only(right: 6),
-                                            child: ChoiceChip(
-                                              label: Text('$count ${count == 1 ? "Guest" : "Guests"}'),
-                                              selected: isSelected,
-                                              selectedColor: AppColors.primaryAccent,
-                                              labelStyle: TextStyle(
-                                                color: isSelected ? Colors.white : AppColors.textPrimary,
-                                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                                fontSize: 12,
-                                              ),
-                                              onSelected: (_) => bloc.add(SetGuestCountEvent(count)),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
+                                  const Icon(Icons.error_outline_rounded, size: 48, color: AppColors.errorText),
+                                  const SizedBox(height: 12),
+                                  Text(state.message, style: AppTextStyles.body),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton(
+                                    onPressed: () => bloc.add(const LoadBookingDataEvent()),
+                                    child: const Text('Retry'),
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
+                          );
+                        }
 
-                          // Section 3: Validation Banner
-                          ValidationBanner(failure: state.summary.failure),
-
-                          const SizedBox(height: 8),
-
-                          // Section 4: Available Rooms Header
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        if (state is BookingLoadedState) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Available Rooms', style: AppTextStyles.heading1),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surfaceVariant,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${state.filteredRooms.length} of ${state.rooms.length} Rooms',
-                                  style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                              // Section 1: Date Picker Card (Isolated RepaintBoundary)
+                              RepaintBoundary(
+                                child: DateSelectionCard(
+                                  checkIn: state.checkIn,
+                                  checkOut: state.checkOut,
+                                  onDateRangeSelected: (range) => bloc.add(UpdateDatesEvent(range.start, range.end)),
                                 ),
                               ),
+                              const SizedBox(height: 16),
+
+                              // Section 2: Guest Count Filter Card (Isolated RepaintBoundary)
+                              RepaintBoundary(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.surface,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.people_alt_rounded, color: AppColors.primaryAccent, size: 20),
+                                      const SizedBox(width: 8),
+                                      const Text('Guests:', style: AppTextStyles.title),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: [1, 2, 3, 4].map((count) {
+                                              final isSelected = state.guestCount == count;
+                                              return Padding(
+                                                padding: const EdgeInsets.only(right: 6),
+                                                child: ChoiceChip(
+                                                  label: Text('$count ${count == 1 ? "Guest" : "Guests"}'),
+                                                  selected: isSelected,
+                                                  selectedColor: AppColors.primaryAccent,
+                                                  labelStyle: TextStyle(
+                                                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                                    fontSize: 12,
+                                                  ),
+                                                  onSelected: (_) => bloc.add(SetGuestCountEvent(count)),
+                                                ),
+                                              );
+                                            }).toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Section 3: Validation Banner
+                              ValidationBanner(failure: state.summary.failure),
+
+                              const SizedBox(height: 8),
+
+                              // Section 4: Available Rooms Header
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text('Available Rooms', style: AppTextStyles.heading1),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceVariant,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      '${state.filteredRooms.length} of ${state.rooms.length} Rooms',
+                                      style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+
+                              // Filtered Room List (RepaintBoundary per room)
+                              ...state.filteredRooms.map((room) {
+                                return RepaintBoundary(
+                                  key: ValueKey(room.code),
+                                  child: RoomCard(
+                                    room: room,
+                                    isSelected: state.selectedRoom == room,
+                                    checkIn: state.checkIn,
+                                    checkOut: state.checkOut,
+                                    onTap: () => bloc.add(SelectRoomEvent(room)),
+                                  ),
+                                );
+                              }),
+
+                              const SizedBox(height: 12),
+
+                              // Section 5: Booking Summary Card (Isolated RepaintBoundary)
+                              RepaintBoundary(
+                                child: BookingSummaryCard(
+                                  summary: state.summary,
+                                  onBookNowPressed: () => _showBookingConfirmationDialog(context, state),
+                                ),
+                              ),
+
+                              const SizedBox(height: 30),
                             ],
-                          ),
-                          const SizedBox(height: 14),
+                          );
+                        }
 
-                          // Filtered Room List (RepaintBoundary per room)
-                          ...state.filteredRooms.map((room) {
-                            return RepaintBoundary(
-                              key: ValueKey(room.code),
-                              child: RoomCard(
-                                room: room,
-                                isSelected: state.selectedRoom == room,
-                                checkIn: state.checkIn,
-                                checkOut: state.checkOut,
-                                onTap: () => bloc.add(SelectRoomEvent(room)),
-                              ),
-                            );
-                          }),
-
-                          const SizedBox(height: 12),
-
-                          // Section 5: Booking Summary Card (Isolated RepaintBoundary)
-                          RepaintBoundary(
-                            child: BookingSummaryCard(
-                              summary: state.summary,
-                              onBookNowPressed: () => _showBookingConfirmationDialog(context, state),
-                            ),
-                          ),
-
-                          const SizedBox(height: 30),
-                        ],
-                      );
-                    }
-
-                    return const SizedBox.shrink();
-                  },
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ]),
                 ),
-              ]),
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
