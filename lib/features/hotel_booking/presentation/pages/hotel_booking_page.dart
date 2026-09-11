@@ -12,10 +12,7 @@ import '../widgets/validation_banner.dart';
 class HotelBookingPage extends StatefulWidget {
   final BookingController controller;
 
-  const HotelBookingPage({
-    super.key,
-    required this.controller,
-  });
+  const HotelBookingPage({super.key, required this.controller});
 
   @override
   State<HotelBookingPage> createState() => _HotelBookingPageState();
@@ -38,10 +35,16 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: const [
-              Icon(Icons.verified_rounded, color: AppColors.secondaryAccent, size: 28),
+              Icon(
+                Icons.verified_rounded,
+                color: AppColors.secondaryAccent,
+                size: 28,
+              ),
               SizedBox(width: 10),
               Text('Reservation Confirmed!'),
             ],
@@ -64,13 +67,31 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _dialogInfoRow('Check-in', DateFormatter.formatShort(summary.checkIn)),
+                    _dialogInfoRow(
+                      'Check-in',
+                      DateFormatter.formatShort(summary.checkIn),
+                    ),
                     const SizedBox(height: 6),
-                    _dialogInfoRow('Check-out', DateFormatter.formatShort(summary.checkOut)),
+                    _dialogInfoRow(
+                      'Check-out',
+                      DateFormatter.formatShort(summary.checkOut),
+                    ),
                     const SizedBox(height: 6),
-                    _dialogInfoRow('Total Stay', '${summary.totalNights} Nights'),
+                    _dialogInfoRow(
+                      'Total Stay',
+                      '${summary.totalNights} Nights',
+                    ),
                     const SizedBox(height: 6),
-                    _dialogInfoRow('Total Amount', CurrencyFormatter.formatINR(summary.totalPrice), isBold: true),
+                    _dialogInfoRow(
+                      'Guests',
+                      '${widget.controller.guestCount} Guest(s)',
+                    ),
+                    const SizedBox(height: 6),
+                    _dialogInfoRow(
+                      'Total Amount',
+                      CurrencyFormatter.formatINR(summary.totalPrice),
+                      isBold: true,
+                    ),
                   ],
                 ),
               ),
@@ -81,7 +102,9 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: const Text('Close', style: TextStyle(color: Colors.white)),
             ),
@@ -128,7 +151,11 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                   titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
                   title: Row(
                     children: const [
-                      Icon(Icons.king_bed_rounded, color: Colors.amber, size: 24),
+                      Icon(
+                        Icons.king_bed_rounded,
+                        color: Colors.amber,
+                        size: 24,
+                      ),
                       SizedBox(width: 8),
                       Text(
                         'Hotel Room Booking',
@@ -154,7 +181,7 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                         child: Icon(
                           Icons.hotel_rounded,
                           size: 180,
-                          color: Colors.white.withOpacity(0.06),
+                          color: Colors.white.withValues(alpha: 0.06),
                         ),
                       ),
                     ],
@@ -170,9 +197,7 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                     if (controller.isLoading)
                       const Padding(
                         padding: EdgeInsets.all(40),
-                        child: Center(
-                          child: CircularProgressIndicator(),
-                        ),
+                        child: Center(child: CircularProgressIndicator()),
                       )
                     else ...[
                       // Section 1: Date Picker Card
@@ -187,46 +212,100 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Section 2: Validation Message Banner
+                      // Section 2: Guest Count Filter Card
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.people_alt_rounded, color: AppColors.primaryAccent, size: 20),
+                            const SizedBox(width: 8),
+                            const Text('Guests:', style: AppTextStyles.title),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [1, 2, 3, 4].map((count) {
+                                    final isSelected = controller.guestCount == count;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 6),
+                                      child: ChoiceChip(
+                                        label: Text('$count ${count == 1 ? "Guest" : "Guests"}'),
+                                        selected: isSelected,
+                                        selectedColor: AppColors.primaryAccent,
+                                        labelStyle: TextStyle(
+                                          color: isSelected ? Colors.white : AppColors.textPrimary,
+                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          fontSize: 12,
+                                        ),
+                                        onSelected: (_) => controller.setGuestCount(count),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Section 3: Validation Message Banner
                       ValidationBanner(failure: controller.summary.failure),
 
                       const SizedBox(height: 8),
 
-                      // Section 3: Room Selection List Header
+                      // Section 4: Room Selection List Header
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Available Rooms', style: AppTextStyles.heading1),
+                          const Text(
+                            'Available Rooms',
+                            style: AppTextStyles.heading1,
+                          ),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceVariant,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              '${controller.rooms.length} Options',
-                              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                              '${controller.filteredRooms.length} of ${controller.rooms.length} Rooms',
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 14),
 
-                      // List of Rooms
-                      ...controller.rooms.map((room) {
+                      // List of Filtered Rooms
+                      ...controller.filteredRooms.map((room) {
                         return RoomCard(
                           room: room,
                           isSelected: controller.selectedRoom == room,
+                          checkIn: controller.checkIn,
+                          checkOut: controller.checkOut,
                           onTap: () => controller.selectRoom(room),
                         );
-                      }).toList(),
+                      }),
 
                       const SizedBox(height: 12),
 
-                      // Section 4: Live Price & Nights Summary Calculation Card
+                      // Section 5: Live Price & Nights Summary Calculation Card
                       BookingSummaryCard(
                         summary: controller.summary,
-                        onBookNowPressed: () => _showBookingConfirmationDialog(context),
+                        onBookNowPressed: () =>
+                            _showBookingConfirmationDialog(context),
                       ),
 
                       const SizedBox(height: 30),

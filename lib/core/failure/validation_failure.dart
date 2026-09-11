@@ -32,3 +32,15 @@ class MissingDatesFailure extends ValidationFailure {
   const MissingDatesFailure()
       : super('Please select both check-in and check-out dates.');
 }
+
+class RoomAlreadyBookedFailure extends ValidationFailure {
+  final String roomCode;
+  RoomAlreadyBookedFailure(this.roomCode)
+      : super('Room $roomCode is already booked for the selected dates.');
+}
+
+class ExceedsMaxGuestsFailure extends ValidationFailure {
+  final int maxGuests;
+  ExceedsMaxGuestsFailure(this.maxGuests)
+      : super('Selected room accommodates a maximum of $maxGuests guest(s).');
+}

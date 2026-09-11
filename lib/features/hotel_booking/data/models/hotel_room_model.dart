@@ -8,9 +8,22 @@ class HotelRoomModel extends HotelRoom {
     required super.maxGuests,
     required super.description,
     required super.amenities,
+    super.bookedRanges,
   });
 
   factory HotelRoomModel.fromJson(Map<String, dynamic> json) {
+    List<BookingDateRange> parsedRanges = [];
+    if (json['bookedRanges'] != null) {
+      for (var r in json['bookedRanges'] as List<dynamic>) {
+        parsedRanges.add(
+          BookingDateRange(
+            checkIn: DateTime.parse(r['checkIn'] as String),
+            checkOut: DateTime.parse(r['checkOut'] as String),
+          ),
+        );
+      }
+    }
+
     return HotelRoomModel(
       code: json['code'] as String,
       type: json['type'] as String,
@@ -21,6 +34,7 @@ class HotelRoomModel extends HotelRoom {
               ?.map((e) => e as String)
               .toList() ??
           const [],
+      bookedRanges: parsedRanges,
     );
   }
 
@@ -32,6 +46,12 @@ class HotelRoomModel extends HotelRoom {
       'maxGuests': maxGuests,
       'description': description,
       'amenities': amenities,
+      'bookedRanges': bookedRanges
+          .map((r) => {
+                'checkIn': r.checkIn.toIso8601String(),
+                'checkOut': r.checkOut.toIso8601String(),
+              })
+          .toList(),
     };
   }
 }

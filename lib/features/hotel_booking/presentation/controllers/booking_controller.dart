@@ -16,6 +16,12 @@ class BookingController extends ChangeNotifier {
   List<HotelRoom> _rooms = [];
   List<HotelRoom> get rooms => _rooms;
 
+  int _guestCount = 1;
+  int get guestCount => _guestCount;
+
+  List<HotelRoom> get filteredRooms =>
+      _rooms.where((room) => room.maxGuests >= _guestCount).toList();
+
   HotelRoom? _selectedRoom;
   HotelRoom? get selectedRoom => _selectedRoom;
 
@@ -37,29 +43,44 @@ class BookingController extends ChangeNotifier {
 
     try {
       _rooms = await getHotelRoomsUseCase.execute();
-      
-      // Default dates for seamless initial preview (Today -> +2 Days)
+
       final now = DateTime.now();
       _checkIn = DateTime(now.year, now.month, now.day);
       _checkOut = _checkIn!.add(const Duration(days: 2));
 
-      // Pre-select first room for high conversion UI experience
-      if (_rooms.isNotEmpty) {
-        _selectedRoom = _rooms.first;
+      // Select first available room for the default dates
+      final availableRooms = filteredRooms.where((r) => !r.isBookedFor(_checkIn, _checkOut)).toList();
+      if (availableRooms.isNotEmpty) {
+        _selectedRoom = availableRooms.first;
+      } else if (filteredRooms.isNotEmpty) {
+        _selectedRoom = filteredRooms.first;
       }
-      
+
       _recalculate();
     } catch (e) {
-      // Handle potential fetch errors cleanly
+      // Handle error
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
+  void setGuestCount(int count) {
+    if (count < 1) return;
+    _guestCount = count;
+
+    // If currently selected room doesn't accommodate new guest count, auto switch or clear
+    if (_selectedRoom != null && _selectedRoom!.maxGuests < _guestCount) {
+      final validRooms = filteredRooms;
+      _selectedRoom = validRooms.isNotEmpty ? validRooms.first : null;
+    }
+
+    _recalculate();
+    notifyListeners();
+  }
+
   void selectRoom(HotelRoom room) {
     if (_selectedRoom == room) {
-      // Unselect room if tapped again
       _selectedRoom = null;
     } else {
       _selectedRoom = room;
@@ -77,7 +98,6 @@ class BookingController extends ChangeNotifier {
 
   void setCheckIn(DateTime date) {
     _checkIn = date;
-    // Auto-adjust check-out if check-out is now before or on check-in
     if (_checkOut != null && !_checkOut!.isAfter(_checkIn!)) {
       _checkOut = _checkIn!.add(const Duration(days: 1));
     }
@@ -96,6 +116,7 @@ class BookingController extends ChangeNotifier {
       selectedRoom: _selectedRoom,
       checkIn: _checkIn,
       checkOut: _checkOut,
+      guestCount: _guestCount,
     );
   }
 }

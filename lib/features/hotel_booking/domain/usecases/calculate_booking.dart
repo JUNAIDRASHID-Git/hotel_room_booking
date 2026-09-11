@@ -9,6 +9,7 @@ class CalculateBookingUseCase {
     required HotelRoom? selectedRoom,
     required DateTime? checkIn,
     required DateTime? checkOut,
+    int guestCount = 1,
     DateTime? now,
   }) {
     if (checkIn == null || checkOut == null) {
@@ -52,6 +53,28 @@ class CalculateBookingUseCase {
         checkOut: checkOut,
         totalNights: nights,
         failure: const RoomNotSelectedFailure(),
+      );
+    }
+
+    // Check if room exceeds max guests
+    if (selectedRoom.maxGuests < guestCount) {
+      return BookingSummary(
+        selectedRoom: selectedRoom,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        totalNights: nights,
+        failure: ExceedsMaxGuestsFailure(selectedRoom.maxGuests),
+      );
+    }
+
+    // Check if room is already booked for chosen dates
+    if (selectedRoom.isBookedFor(checkIn, checkOut)) {
+      return BookingSummary(
+        selectedRoom: selectedRoom,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        totalNights: nights,
+        failure: RoomAlreadyBookedFailure(selectedRoom.code),
       );
     }
 

@@ -7,12 +7,16 @@ import '../../domain/entities/hotel_room.dart';
 class RoomCard extends StatelessWidget {
   final HotelRoom room;
   final bool isSelected;
+  final DateTime? checkIn;
+  final DateTime? checkOut;
   final VoidCallback onTap;
 
   const RoomCard({
     super.key,
     required this.room,
     required this.isSelected,
+    this.checkIn,
+    this.checkOut,
     required this.onTap,
   });
 
@@ -27,26 +31,36 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isBooked = room.isBookedFor(checkIn, checkOut);
+
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: isSelected ? AppColors.infoBackground.withOpacity(0.4) : AppColors.surface,
+        color: isBooked
+            ? AppColors.errorBackground.withValues(alpha: 0.3)
+            : isSelected
+                ? AppColors.infoBackground.withValues(alpha: 0.4)
+                : AppColors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isSelected ? AppColors.primaryAccent : AppColors.border,
+          color: isBooked
+              ? AppColors.errorBorder
+              : isSelected
+                  ? AppColors.primaryAccent
+                  : AppColors.border,
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
           if (isSelected)
             BoxShadow(
-              color: AppColors.primaryAccent.withOpacity(0.12),
+              color: AppColors.primaryAccent.withValues(alpha: 0.12),
               blurRadius: 12,
               offset: const Offset(0, 4),
             )
           else
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -67,18 +81,29 @@ class RoomCard extends StatelessWidget {
                   children: [
                     // Room Code Badge & Type Icon
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        gradient: isSelected
-                            ? AppColors.primaryGradient
-                            : const LinearGradient(
-                                colors: [Color(0xFF64748B), Color(0xFF475569)],
-                              ),
+                        gradient: isBooked
+                            ? const LinearGradient(
+                                colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
+                              )
+                            : isSelected
+                                ? AppColors.primaryGradient
+                                : const LinearGradient(
+                                    colors: [Color(0xFF64748B), Color(0xFF475569)],
+                                  ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         children: [
-                          Icon(_getRoomIcon(room.type), size: 16, color: Colors.white),
+                          Icon(
+                            _getRoomIcon(room.type),
+                            size: 16,
+                            color: Colors.white,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             room.code,
@@ -97,14 +122,41 @@ class RoomCard extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            room.type,
-                            style: AppTextStyles.title.copyWith(fontSize: 16),
+                          Row(
+                            children: [
+                              Text(
+                                room.type,
+                                style: AppTextStyles.title.copyWith(fontSize: 16),
+                              ),
+                              if (isBooked) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.errorBackground,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: AppColors.errorBorder),
+                                  ),
+                                  child: const Text(
+                                    'BOOKED',
+                                    style: TextStyle(
+                                      color: AppColors.errorText,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                           const SizedBox(height: 2),
                           Row(
                             children: [
-                              const Icon(Icons.people_outline_rounded, size: 14, color: AppColors.textSecondary),
+                              const Icon(
+                                Icons.people_outline_rounded,
+                                size: 14,
+                                color: AppColors.textSecondary,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'Max ${room.maxGuests} Guests',
@@ -124,32 +176,49 @@ class RoomCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: isSelected ? AppColors.primaryAccent : AppColors.textPrimary,
+                            color: isSelected
+                                ? AppColors.primaryAccent
+                                : AppColors.textPrimary,
                           ),
                         ),
-                        const Text(
-                          '/ night',
-                          style: AppTextStyles.caption,
-                        ),
+                        const Text('/ night', style: AppTextStyles.caption),
                       ],
                     ),
                     const SizedBox(width: 10),
-                    // Checkmark Radio Badge
+                    // Checkmark or Lock Badge
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       height: 24,
                       width: 24,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: isSelected ? AppColors.primaryAccent : Colors.transparent,
+                        color: isBooked
+                            ? AppColors.errorBackground
+                            : isSelected
+                                ? AppColors.primaryAccent
+                                : Colors.transparent,
                         border: Border.all(
-                          color: isSelected ? AppColors.primaryAccent : AppColors.textMuted,
+                          color: isBooked
+                              ? AppColors.errorBorder
+                              : isSelected
+                                  ? AppColors.primaryAccent
+                                  : AppColors.textMuted,
                           width: 2,
                         ),
                       ),
-                      child: isSelected
-                          ? const Icon(Icons.check, size: 16, color: Colors.white)
-                          : null,
+                      child: isBooked
+                          ? const Icon(
+                              Icons.block_rounded,
+                              size: 14,
+                              color: AppColors.errorText,
+                            )
+                          : isSelected
+                              ? const Icon(
+                                  Icons.check,
+                                  size: 16,
+                                  color: Colors.white,
+                                )
+                              : null,
                     ),
                   ],
                 ),
@@ -169,10 +238,13 @@ class RoomCard extends StatelessWidget {
                   runSpacing: 4,
                   children: room.amenities.map((amenity) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? AppColors.primaryAccent.withOpacity(0.08)
+                            ? AppColors.primaryAccent.withValues(alpha: 0.08)
                             : AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(6),
                       ),
@@ -181,7 +253,9 @@ class RoomCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w500,
-                          color: isSelected ? AppColors.primaryAccent : AppColors.textSecondary,
+                          color: isSelected
+                              ? AppColors.primaryAccent
+                              : AppColors.textSecondary,
                         ),
                       ),
                     );

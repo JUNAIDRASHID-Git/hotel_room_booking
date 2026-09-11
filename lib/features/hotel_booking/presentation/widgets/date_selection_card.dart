@@ -21,7 +21,9 @@ class DateSelectionCard extends StatelessWidget {
 
   Future<void> _pickCheckInDate(BuildContext context) async {
     final now = DateTime.now();
-    final firstDate = now.subtract(const Duration(days: 30)); // allow past pick to test validation
+    final firstDate = now.subtract(
+      const Duration(days: 30),
+    ); // allow past pick to test validation
     final initial = checkIn ?? now;
 
     final picked = await showDatePicker(
@@ -81,7 +83,8 @@ class DateSelectionCard extends StatelessWidget {
 
   Future<void> _pickDateRange(BuildContext context) async {
     final now = DateTime.now();
-    final initialRange = (checkIn != null && checkOut != null && checkOut!.isAfter(checkIn!))
+    final initialRange =
+        (checkIn != null && checkOut != null && checkOut!.isAfter(checkIn!))
         ? DateTimeRange(start: checkIn!, end: checkOut!)
         : DateTimeRange(start: now, end: now.add(const Duration(days: 2)));
 
@@ -119,7 +122,7 @@ class DateSelectionCard extends StatelessWidget {
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -134,7 +137,11 @@ class DateSelectionCard extends StatelessWidget {
             children: [
               Row(
                 children: const [
-                  Icon(Icons.calendar_month_rounded, color: AppColors.primaryAccent, size: 22),
+                  Icon(
+                    Icons.calendar_month_rounded,
+                    color: AppColors.primaryAccent,
+                    size: 22,
+                  ),
                   SizedBox(width: 8),
                   Text('Select Stay Dates', style: AppTextStyles.heading2),
                 ],
@@ -143,10 +150,17 @@ class DateSelectionCard extends StatelessWidget {
                 onTap: () => _pickDateRange(context),
                 borderRadius: BorderRadius.circular(8),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   child: Row(
                     children: const [
-                      Icon(Icons.date_range_rounded, size: 16, color: AppColors.primaryAccent),
+                      Icon(
+                        Icons.date_range_rounded,
+                        size: 16,
+                        color: AppColors.primaryAccent,
+                      ),
                       SizedBox(width: 4),
                       Text(
                         'Range Picker',
@@ -175,7 +189,11 @@ class DateSelectionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(Icons.arrow_forward_rounded, color: AppColors.textMuted, size: 18),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColors.textMuted,
+                size: 18,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: _buildDateTile(
@@ -215,7 +233,13 @@ class DateSelectionCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: AppTextStyles.caption.copyWith(fontSize: 11, fontWeight: FontWeight.bold)),
+              Text(
+                label,
+                style: AppTextStyles.caption.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               const SizedBox(height: 6),
               Row(
                 children: [
